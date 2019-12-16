@@ -1,49 +1,9 @@
 # nginx-proxy to nginx, to rapidpro
 version: "3"
 services:
-  nginx:
-    image: nginx
-    links:
-      - rapidpro
-      - courier
-      - mailroom
-    volumes:
-      - "./etc/nginx/conf.d/:/etc/nginx/conf.d/"
-      - "./nginx/certs:/etc/nginx/certs"
-      - "./data/sitestatic:/sitestatic"
-    environment:
-      - VIRTUAL_HOST=${RAPIDPRO_HOST:-localhost}
-      - LETSENCRYPT_HOST=${RAPIDPRO_HOST:-localhost}
-      - LETSENCRYPT_EMAIL=${RAPIDPRO_ADMIN_EMAIL:-admin@example.com}
-      - LETSENCRYPT_TEST=${LETSENCRYPT_TEST:-true}
-  nginx-proxy:
-    image: jwilder/nginx-proxy
-    container_name: nginx-proxy
-    labels:
-      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "./nginx/vhost.d:/etc/nginx/vhost.d"
-      - "./nginx/html:/usr/share/nginx/html"
-      - "./nginx/certs:/etc/nginx/certs"
-      - "/var/run/docker.sock:/tmp/docker.sock:ro"
-  letsencrypt-nginx-proxy-companion:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    container_name: letsencrypt-nginx-proxy-companion
-    depends_on:
-      - nginx-proxy
-    volumes:
-      - "./nginx/vhost.d:/etc/nginx/vhost.d"
-      - "./nginx/html:/usr/share/nginx/html"
-      - "./nginx/certs:/etc/nginx/certs"
-      - "/var/run/docker.sock:/tmp/docker.sock:ro"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    environment:
-      - NGINX_PROXY_CONTAINER=nginx-proxy
-      - LETSENCRYPT_TEST=${LETSENCRYPT_TEST:-true}
   rapidpro:
+    ports:
+      - "8000:8000"
     image: cromulus/rapidpro:latest
     depends_on:
       - redis
